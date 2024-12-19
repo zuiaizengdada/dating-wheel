@@ -37,6 +37,9 @@ module.exports = {
       },
       animation: {
         'wheel-spin': 'wheelSpin 3s linear infinite'
+      },
+      transitionDuration: {
+        1500: '1500ms'
       }
     }
   }
