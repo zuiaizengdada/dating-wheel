@@ -1,2 +1,4 @@
-export { useAudio } from './useAudio'
-export { useAnimation } from './useAnimation'
+import { useAudio } from './useAudio'
+import { useAnimation } from './useAnimation'
+
+export { useAudio, useAnimation }

@@ -1,112 +1,191 @@
-export function useAudio() {
-  const isMuted = ref<boolean>(true)
-  const isPlaying = ref<boolean>(false)
-  const bgmAudio = ref<UniApp.InnerAudioContext | null>(null)
-  const spinningAudio = ref<UniApp.InnerAudioContext | null>(null)
-  const confettiAudio = ref<UniApp.InnerAudioContext | null>(null)
+type AudioType = 'bgm' | 'spinning' | 'confetti'
+type AudioStates = Record<AudioType, Ref<boolean>>
 
-  onMounted(() => {
-    bgmAudio.value = uni.createInnerAudioContext()
-    spinningAudio.value = uni.createInnerAudioContext()
-    confettiAudio.value = uni.createInnerAudioContext()
+const createAudioManager = (() => {
+  let instance: ReturnType<typeof initAudioManager> | null = null
 
-    if (bgmAudio.value) {
-      bgmAudio.value.src = '/static/audio/bgm.mp3'
-      bgmAudio.value.loop = true
-      bgmAudio.value.volume = 0
-      bgmAudio.value.autoplay = true
-
-      bgmAudio.value.onPlay(() => {
-        isPlaying.value = true
-        console.log('Audio started playing')
-      })
-
-      bgmAudio.value.onPause(() => {
-        isPlaying.value = false
-        console.log('Audio paused')
-      })
-
-      bgmAudio.value.onStop(() => {
-        isPlaying.value = false
-        console.log('Audio stopped')
-      })
-
-      bgmAudio.value.onError((res) => {
-        console.error('Audio error:', res)
-        isPlaying.value = false
-      })
-    }
-
-    if (spinningAudio.value) {
-      spinningAudio.value.src = '/static/audio/spinning.mp3'
-      spinningAudio.value.volume = 0
-    }
-
-    if (confettiAudio.value) {
-      confettiAudio.value.src = '/static/audio/confetti.mp3'
-      confettiAudio.value.volume = 0
-    }
-  })
-
-  onUnmounted(() => {
-    if (bgmAudio.value) {
-      bgmAudio.value.destroy()
-    }
-    if (spinningAudio.value) {
-      spinningAudio.value.destroy()
-    }
-    if (confettiAudio.value) {
-      confettiAudio.value.destroy()
-    }
-  })
-
-  const toggleMute = () => {
-    if (!bgmAudio.value) return
-    isMuted.value = !isMuted.value
-    const volume = isMuted.value ? 0 : 1
-
-    if (bgmAudio.value) {
-      bgmAudio.value.volume = volume
-      if (!isMuted.value && !isPlaying.value) {
-        bgmAudio.value.play()
+  // 创建音频实例的工厂函数
+  const createAudio = (type: AudioType): UniApp.InnerAudioContext => {
+    const audio = uni.createInnerAudioContext()
+    const config = {
+      bgm: {
+        src: '/static/audio/bgm.mp3',
+        loop: true,
+        autoplay: true
+      },
+      spinning: {
+        src: '/static/audio/spinning.mp3',
+        loop: false,
+        autoplay: false
+      },
+      confetti: {
+        src: '/static/audio/confetti.mp3',
+        loop: false,
+        autoplay: false
       }
     }
-    if (spinningAudio.value) spinningAudio.value.volume = volume
-    if (confettiAudio.value) confettiAudio.value.volume = volume
+
+    audio.src = config[type].src
+    audio.loop = config[type].loop
+    audio.volume = 0
+    audio.autoplay = config[type].autoplay
+
+    return audio
   }
 
-  const playSpinningSound = () => {
-    const volume = isMuted.value ? 0 : 1
-    if (bgmAudio.value) {
-      bgmAudio.value.pause()
+  // 设置音频事件监听
+  const setupAudioListeners = (audio: UniApp.InnerAudioContext, type: AudioType, audioStates: AudioStates) => {
+    const handlers = {
+      onPlay: () => {
+        audioStates[type].value = true
+        console.log(`${type} audio started playing`)
+      },
+      onPause: () => {
+        audioStates[type].value = false
+        console.log(`${type} audio paused`)
+      },
+      onStop: () => {
+        audioStates[type].value = false
+        console.log(`${type} audio stopped`)
+      },
+      onError: (res: any) => {
+        console.error(`${type} audio error:`, res)
+        audioStates[type].value = false
+      }
     }
-    if (spinningAudio.value) {
-      spinningAudio.value.volume = volume
-      spinningAudio.value.seek(0)
-      spinningAudio.value.play()
+
+    audio.onPlay(handlers.onPlay)
+    audio.onPause(handlers.onPause)
+    audio.onStop(handlers.onStop)
+    audio.onError(handlers.onError)
+  }
+
+  function initAudioManager() {
+    const isMuted = ref<boolean>(true)
+    const isSpinning = ref<boolean>(false)
+
+    // 初始化所有音频的播放状态
+    const audioStates: AudioStates = {
+      bgm: ref(false),
+      spinning: ref(false),
+      confetti: ref(false)
+    }
+
+    // 初始化音频实例
+    const bgmAudio = createAudio('bgm')
+    const spinningAudio = createAudio('spinning')
+    const confettiAudio = createAudio('confetti')
+
+    // 设置所有音频的监听器
+    setupAudioListeners(bgmAudio, 'bgm', audioStates)
+    setupAudioListeners(spinningAudio, 'spinning', audioStates)
+    setupAudioListeners(confettiAudio, 'confetti', audioStates)
+
+    const toggleMute = () => {
+      isMuted.value = !isMuted.value
+      const volume = isMuted.value ? 0 : 1
+
+      if (isMuted.value) {
+        // 静音时暂停所有音频
+        bgmAudio.pause()
+        spinningAudio.pause()
+        confettiAudio.pause()
+      } else {
+        // 取消静音时，优先考虑正在进行的动作音效
+        if (isSpinning.value) {
+          // 如果转盘正在转，只播放转盘音效
+          spinningAudio.volume = volume
+          spinningAudio.seek(0)
+          spinningAudio.play()
+        } else if (audioStates.confetti.value) {
+          confettiAudio.volume = volume
+          confettiAudio.play()
+          if (!isSpinning.value) {
+            bgmAudio.volume = volume
+            bgmAudio.play()
+          }
+        } else {
+          if (!isSpinning.value) {
+            bgmAudio.volume = volume
+            bgmAudio.play()
+          }
+        }
+      }
+    }
+
+    // BGM控制
+    const playBgmSound = () => {
+      const volume = isMuted.value ? 0 : 1
+      bgmAudio.volume = volume
+      bgmAudio.play()
+    }
+
+    const pauseBgmSound = () => {
+      bgmAudio.pause()
+    }
+
+    // 音效控制
+    const playSpinningSound = () => {
+      isSpinning.value = true
+      const volume = isMuted.value ? 0 : 1
+      bgmAudio.pause()
+      confettiAudio.pause()
+      spinningAudio.volume = volume
+      spinningAudio.seek(0)
+      spinningAudio.play()
+    }
+
+    const playConfettiSound = () => {
+      isSpinning.value = false
+      const volume = isMuted.value ? 0 : 1
+      spinningAudio.pause()
+      confettiAudio.volume = volume
+      confettiAudio.seek(0)
+      confettiAudio.play()
+    }
+
+    // 资源清理
+    const destroy = () => {
+      ;[bgmAudio, spinningAudio, confettiAudio].forEach((audio) => audio.destroy())
+      instance = null
+    }
+
+    return {
+      isMuted,
+      audioStates,
+      isSpinning,
+      toggleMute,
+      playSpinningSound,
+      playConfettiSound,
+      playBgmSound,
+      pauseBgmSound,
+      destroy
     }
   }
 
-  const playConfettiSound = () => {
-    const volume = isMuted.value ? 0 : 1
-    if (spinningAudio.value) {
-      spinningAudio.value.pause()
+  return () => {
+    if (!instance) {
+      instance = initAudioManager()
     }
-    if (confettiAudio.value) {
-      confettiAudio.value.volume = volume
-      confettiAudio.value.seek(0)
-      confettiAudio.value.play()
-    }
-    if (bgmAudio.value) {
-      bgmAudio.value.volume = volume
-      bgmAudio.value.play()
-    }
+    return instance
   }
+})()
+
+export function useAudio() {
+  const audioManager = createAudioManager()
+
+  onUnmounted(() => {
+    audioManager.destroy()
+  })
 
   return {
-    isMuted,
-    toggleMute,
-    playSpinningSound,
-    playConfettiSound
+    isMuted: audioManager.isMuted,
+    audioStates: audioManager.audioStates,
+    isSpinning: audioManager.isSpinning,
+    toggleMute: audioManager.toggleMute,
+    playSpinningSound: audioManager.playSpinningSound,
+    playConfettiSound: audioManager.playConfettiSound,
+    playBgmSound: audioManager.playBgmSound,
+    pauseBgmSound: audioManager.pauseBgmSound
   }
 }

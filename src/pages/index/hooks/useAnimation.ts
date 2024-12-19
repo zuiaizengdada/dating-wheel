@@ -5,12 +5,27 @@ import { dateOptions } from '../config'
 
 export function useAnimation() {
   const { getCanvasSize, getPainter } = useCanvas()
-  const { playSpinningSound, playConfettiSound } = useAudio()
+  const { playSpinningSound, playConfettiSound, playBgmSound } = useAudio()
 
   const rotation = ref<number>(0)
   const isSpinning = ref<boolean>(false)
   const selectedDate = ref<string>('')
   const resultPopup = ref<any>(null)
+  const continuousRotation = ref<number>(0)
+  let animationFrameId: number
+
+  function animate() {
+    continuousRotation.value += 0.2
+    animationFrameId = requestAnimationFrame(animate)
+  }
+
+  onMounted(() => {
+    animate()
+  })
+
+  onUnmounted(() => {
+    cancelAnimationFrame(animationFrameId)
+  })
 
   async function showConfetti() {
     const painter = await getPainter()
@@ -19,15 +34,16 @@ export function useAnimation() {
     new Confetti({
       paint: painter,
       canvasWidth: rect.width,
-      canvasHeight: rect.height,
-      displayFps: true
+      canvasHeight: rect.height
     }).run({})
   }
 
   async function spinWheel(): Promise<void> {
     if (isSpinning.value) return
     isSpinning.value = true
-    const newRotation = rotation.value + 1440 + Math.random() * 360
+    const startRotation = continuousRotation.value
+    const extraRotation = 1440 + Math.random() * 360
+    const newRotation = startRotation + extraRotation
     rotation.value = newRotation
 
     playSpinningSound()
@@ -39,11 +55,13 @@ export function useAnimation() {
       resultPopup.value.open()
       playConfettiSound()
       showConfetti()
+      continuousRotation.value = newRotation
     }, 5000)
   }
 
   function closeModal(): void {
     resultPopup.value.close()
+    playBgmSound()
   }
 
   return {
@@ -53,6 +71,7 @@ export function useAnimation() {
     isSpinning,
     selectedDate,
     resultPopup,
-    closeModal
+    closeModal,
+    continuousRotation
   }
 }

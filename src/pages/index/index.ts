@@ -13,7 +13,7 @@ export function useIndex() {
   }
 
   const { isMuted, toggleMute } = useAudio()
-  const { spinWheel, rotation, isSpinning, selectedDate, resultPopup, closeModal } = useAnimation()
+  const { spinWheel, rotation, isSpinning, selectedDate, resultPopup, closeModal, continuousRotation } = useAnimation()
 
   return {
     // 音频
@@ -33,6 +33,9 @@ export function useIndex() {
     audioTop,
 
     // 平台
-    type
+    type,
+
+    // 持续旋转
+    continuousRotation
   }
 }
