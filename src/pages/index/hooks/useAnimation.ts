@@ -12,11 +12,13 @@ export function useAnimation() {
   const selectedDate = ref<string>('')
   const resultPopup = ref<any>(null)
   const continuousRotation = ref<number>(0)
-  let animationFrameId: number
+  let animationTimer: ReturnType<typeof setTimeout>
 
   function animate() {
     continuousRotation.value += 0.2
-    animationFrameId = requestAnimationFrame(animate)
+    animationTimer = setTimeout(() => {
+      animate()
+    }, 1000 / 60)
   }
 
   onMounted(() => {
@@ -24,7 +26,7 @@ export function useAnimation() {
   })
 
   onUnmounted(() => {
-    cancelAnimationFrame(animationFrameId)
+    clearTimeout(animationTimer)
   })
 
   async function showConfetti() {
