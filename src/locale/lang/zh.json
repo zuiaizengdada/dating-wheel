@@ -1,0 +1,12 @@
+{
+  "loading": "加载中",
+  "demo": "国际化示例",
+  "request": {
+    "success": "请求成功",
+    "Unauthorized": "请求未授权，请登录后重试",
+    "NotFound": "请求地址错误",
+    "InternalServerError": "服务器内部错误",
+    "TimeOut": "请求超时",
+    "Unkown": "未知错误"
+  }
+}

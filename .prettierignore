@@ -1,0 +1,14 @@
+/dist/*
+.local
+.output.js
+/node_modules/**
+/.vscode/** */
+pnpm-lock.yaml
+​
+**/*.svg
+**/*.sh
+​
+/public/*
+
+/src/types/*.d.ts
+/src/utils/modules/pinia-auto-refs.ts
