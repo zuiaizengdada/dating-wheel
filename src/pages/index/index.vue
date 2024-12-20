@@ -19,12 +19,12 @@ const { rotation, isSpinning, selectedDate, resultPopup, spinWheel, closeModal, 
       <text class="mb-[20px] text-[32px] font-bold text-pink-500 cartoon-font">情侣约会大转盘</text>
       <view class="relative w-[300px] h-[300px]">
         <view
-          class="w-full h-full rounded-full border-[8px] border-pink-300 shadow-md overflow-hidden transition-transform duration-[5000ms] ease-out relative before:content-empty before:absolute before:-top-[8px] before:-left-[8px] before:-right-[8px] before:-bottom-[8px] before:rounded-full before:bg-gradient-conic before:from-red-500 before:via-yellow-500 before:to-blue-500 before:-z-10 before:opacity-50 before:transition-transform before:duration-[5000ms] before:ease-out bg-wheel-gradient"
-          :class="{ 'before:animate-wheel-spin': isSpinning }"
+          class="w-full h-full rounded-full border-[8px] border-pink-300 shadow-md overflow-hidden transition-transform duration-[5000ms] ease-out relative wheel-gradient"
           :style="{
             transform: `rotate(${isSpinning ? rotation : continuousRotation}deg)`
           }"
         >
+          <view class="absolute -top-[8px] -left-[8px] -right-[8px] -bottom-[8px] rounded-full conic-gradient opacity-50 -z-10"></view>
         </view>
         <view
           class="absolute -top-[5px] left-1/2 w-0 h-0 border-x-[10px] rounded-[6px] border-x-transparent border-b-[16px] border-b-pink-500"
@@ -55,3 +55,50 @@ const { rotation, isSpinning, selectedDate, resultPopup, spinWheel, closeModal, 
   </view>
   <canvas id="canvas" ref="canvas" type="2d" canvas-id="canvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-[999999]" />
 </template>
+
+<style lang="scss" scoped>
+// 定义颜色变量
+$wheel-colors: (
+  pink: #f9a8d4,
+  yellow: #fcd34d,
+  purple: #a78bfa,
+  blue: #93c5fd
+);
+
+$conic-colors: (
+  red: #ff0000,
+  orange: #ff8800,
+  yellow: #ffff00,
+  green: #00ff00,
+  cyan: #00ffff,
+  blue: #0000ff,
+  magenta: #ff00ff
+);
+
+.wheel-gradient {
+  background: conic-gradient(
+    map-get($wheel-colors, pink) 0deg 45deg,
+    map-get($wheel-colors, yellow) 45deg 90deg,
+    map-get($wheel-colors, purple) 90deg 135deg,
+    map-get($wheel-colors, blue) 135deg 180deg,
+    map-get($wheel-colors, pink) 180deg 225deg,
+    map-get($wheel-colors, yellow) 225deg 270deg,
+    map-get($wheel-colors, purple) 270deg 315deg,
+    map-get($wheel-colors, blue) 315deg 360deg
+  );
+}
+
+.conic-gradient {
+  background: conic-gradient(
+    from 0deg,
+    map-get($conic-colors, red),
+    map-get($conic-colors, orange),
+    map-get($conic-colors, yellow),
+    map-get($conic-colors, green),
+    map-get($conic-colors, cyan),
+    map-get($conic-colors, blue),
+    map-get($conic-colors, magenta),
+    map-get($conic-colors, red)
+  );
+}
+</style>
