@@ -1,16 +1,10 @@
 import { dateOptions } from './config'
 import { useAudio, useAnimation } from './hooks'
+import { useSystemInfo } from '@/common/hooks'
 
 export function useIndex() {
-  const type = uni.getSystemInfoSync().uniPlatform
-  const audioTop = ref<number>(0)
-
-  if (type === 'mp-weixin') {
-    const { top } = uni.getMenuButtonBoundingClientRect()
-    audioTop.value = top
-  } else {
-    audioTop.value = 48
-  }
+  const { uniPlatform, top = 0 } = useSystemInfo()
+  const audioTop = uniPlatform === 'mp-weixin' ? top : 48
 
   const { isMuted, toggleMute } = useAudio()
   const { spinWheel, rotation, isSpinning, selectedDate, resultPopup, closeModal, continuousRotation } = useAnimation()
@@ -33,7 +27,7 @@ export function useIndex() {
     audioTop,
 
     // 平台
-    type,
+    uniPlatform,
 
     // 持续旋转
     continuousRotation

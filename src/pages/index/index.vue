@@ -4,7 +4,7 @@ import FloatingDots from './components/FloatingDots.vue'
 import LuckyWheel from './components/LuckyWheel.vue'
 import VolumeControl from './components/VolumeControl.vue'
 
-const { rotation, isSpinning, selectedDate, resultPopup, spinWheel, closeModal, isMuted, toggleMute, audioTop, type, continuousRotation } = useIndex()
+const { rotation, isSpinning, selectedDate, resultPopup, spinWheel, closeModal, isMuted, toggleMute, audioTop, uniPlatform, continuousRotation } = useIndex()
 </script>
 
 <template>
@@ -14,7 +14,7 @@ const { rotation, isSpinning, selectedDate, resultPopup, spinWheel, closeModal, 
 
     <view class="flex relative z-10 flex-col gap-4 items-center">
       <!-- 音量控制 -->
-      <VolumeControl :is-muted="isMuted" :audio-top="audioTop" :type="type" @toggle="toggleMute" />
+      <VolumeControl :is-muted="isMuted" :audio-top="audioTop" :uni-platform="uniPlatform" @toggle="toggleMute" />
 
       <!-- 标题 -->
       <text class="mb-[20px] text-[32px] font-bold text-pink-500 cartoon-font">情侣约会大转盘</text>
