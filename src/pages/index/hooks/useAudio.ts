@@ -11,7 +11,7 @@ const createAudioManager = (() => {
       bgm: {
         src: '/static/audio/bgm.mp3',
         loop: true,
-        autoplay: true
+        autoplay: false
       },
       spinning: {
         src: '/static/audio/spinning.mp3',
@@ -86,16 +86,18 @@ const createAudioManager = (() => {
       const volume = isMuted.value ? 0 : 1
 
       if (isMuted.value) {
-        // 静音时暂停所有音频
+        // 静音时不仅要设置音量为0，还要暂停所有音频
+        bgmAudio.volume = 0
+        spinningAudio.volume = 0
+        confettiAudio.volume = 0
+
         bgmAudio.pause()
         spinningAudio.pause()
         confettiAudio.pause()
       } else {
-        // 取消静音时，优先考虑正在进行的动作音效
+        // 取消静音时，根据当前状态播放对应的音频
         if (isSpinning.value) {
-          // 如果转盘正在转，只播放转盘音效
           spinningAudio.volume = volume
-          spinningAudio.seek(0)
           spinningAudio.play()
         } else if (audioStates.confetti.value) {
           confettiAudio.volume = volume
@@ -105,6 +107,7 @@ const createAudioManager = (() => {
             bgmAudio.play()
           }
         } else {
+          // 没有其他音效时播放背景音乐
           if (!isSpinning.value) {
             bgmAudio.volume = volume
             bgmAudio.play()
@@ -131,7 +134,6 @@ const createAudioManager = (() => {
       bgmAudio.pause()
       confettiAudio.pause()
       spinningAudio.volume = volume
-      spinningAudio.seek(0)
       spinningAudio.play()
     }
 
@@ -140,7 +142,6 @@ const createAudioManager = (() => {
       const volume = isMuted.value ? 0 : 1
       spinningAudio.pause()
       confettiAudio.volume = volume
-      confettiAudio.seek(0)
       confettiAudio.play()
     }
 
