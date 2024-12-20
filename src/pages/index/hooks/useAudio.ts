@@ -48,6 +48,14 @@ const createAudioManager = (() => {
         audioStates[type].value = false
         console.log(`${type} audio stopped`)
       },
+      onEnded: () => {
+        // 添加音频播放结束事件处理
+        audioStates[type].value = false
+        console.log(`${type} audio ended`)
+        if (type === 'spinning') {
+          audio.seek(0) // 重置到开始位置
+        }
+      },
       onError: (res: any) => {
         console.error(`${type} audio error:`, res)
         audioStates[type].value = false
@@ -57,6 +65,7 @@ const createAudioManager = (() => {
     audio.onPlay(handlers.onPlay)
     audio.onPause(handlers.onPause)
     audio.onStop(handlers.onStop)
+    audio.onEnded(handlers.onEnded) // 添加结束事件监听
     audio.onError(handlers.onError)
   }
 
@@ -133,8 +142,14 @@ const createAudioManager = (() => {
       const volume = isMuted.value ? 0 : 1
       bgmAudio.pause()
       confettiAudio.pause()
-      spinningAudio.volume = volume
-      spinningAudio.play()
+
+      // 确保完全停止并重置
+      spinningAudio.stop()
+      setTimeout(() => {
+        spinningAudio.seek(0)
+        spinningAudio.volume = volume
+        spinningAudio.play()
+      }, 100) // 添加小延迟确保重置完成
     }
 
     const playConfettiSound = () => {
