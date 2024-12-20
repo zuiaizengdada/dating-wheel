@@ -12,3 +12,5 @@ pnpm-lock.yaml
 
 /src/types/*.d.ts
 /src/utils/modules/pinia-auto-refs.ts
+
+README.md
