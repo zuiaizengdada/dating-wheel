@@ -21,6 +21,8 @@ defineProps<{
 </template>
 
 <style lang="scss" scoped>
+@use 'sass:map';
+
 // 定义颜色变量
 $wheel-colors: (
   pink: #f9a8d4,
@@ -41,28 +43,28 @@ $conic-colors: (
 
 .wheel-gradient {
   background: conic-gradient(
-    map-get($wheel-colors, pink) 0deg 45deg,
-    map-get($wheel-colors, yellow) 45deg 90deg,
-    map-get($wheel-colors, purple) 90deg 135deg,
-    map-get($wheel-colors, blue) 135deg 180deg,
-    map-get($wheel-colors, pink) 180deg 225deg,
-    map-get($wheel-colors, yellow) 225deg 270deg,
-    map-get($wheel-colors, purple) 270deg 315deg,
-    map-get($wheel-colors, blue) 315deg 360deg
+    map.get($wheel-colors, pink) 0deg 45deg,
+    map.get($wheel-colors, yellow) 45deg 90deg,
+    map.get($wheel-colors, purple) 90deg 135deg,
+    map.get($wheel-colors, blue) 135deg 180deg,
+    map.get($wheel-colors, pink) 180deg 225deg,
+    map.get($wheel-colors, yellow) 225deg 270deg,
+    map.get($wheel-colors, purple) 270deg 315deg,
+    map.get($wheel-colors, blue) 315deg 360deg
   );
 }
 
 .conic-gradient {
   background: conic-gradient(
     from 0deg,
-    map-get($conic-colors, red),
-    map-get($conic-colors, orange),
-    map-get($conic-colors, yellow),
-    map-get($conic-colors, green),
-    map-get($conic-colors, cyan),
-    map-get($conic-colors, blue),
-    map-get($conic-colors, magenta),
-    map-get($conic-colors, red)
+    map.get($conic-colors, red),
+    map.get($conic-colors, orange),
+    map.get($conic-colors, yellow),
+    map.get($conic-colors, green),
+    map.get($conic-colors, cyan),
+    map.get($conic-colors, blue),
+    map.get($conic-colors, magenta),
+    map.get($conic-colors, red)
   );
 }
 </style>
