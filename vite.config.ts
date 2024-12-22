@@ -48,5 +48,16 @@ export default defineConfig({
         api: 'modern'
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      external: ['vitest', '@vitest/runner', '@vitest/utils', '@vitest/expect', '@vitest/snapshot', '@vitest/spy', 'chai', 'expect-type'],
+      input: {
+        main: resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: undefined
+      }
+    }
   }
 })
