@@ -14,3 +14,4 @@ pnpm-lock.yaml
 /src/utils/modules/pinia-auto-refs.ts
 
 README.md
+tsconfig.json
