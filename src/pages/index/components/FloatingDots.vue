@@ -10,7 +10,7 @@ const dots = ref<
   }>
 >([])
 
-let timer: number | null = null
+let timer: ReturnType<typeof setInterval> | null = null
 const colors = [
   'from-pink-300 to-purple-300',
   'from-purple-300 to-blue-300',
